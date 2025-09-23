@@ -1,0 +1,1 @@
+# VANET CMS\nThis repo contains the Central Monitoring System (backend + frontend).
