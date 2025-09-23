@@ -1,1 +1,0 @@
-<?php echo 'API routing placeholder'; ?>
