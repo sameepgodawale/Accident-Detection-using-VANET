@@ -1,0 +1,4 @@
+{
+  "name": "vanet/cms",
+  "autoload": {"psr-4": {"App\\": "src/"}}
+}
