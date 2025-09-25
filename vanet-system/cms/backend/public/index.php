@@ -1,0 +1,1 @@
+<?php echo 'CMS API is running'; ?>
