@@ -1,0 +1,25 @@
+# Schematics (Text) - OBU Reference Interconnect
+
+Power:
+- Vehicle 12V -> Automotive Buck Converter -> 5V rail
+- 5V rail -> LDO -> 3.3V rail for MCU, sensors, LoRa
+- Optional Supercap across 5V rail for brownout protection
+
+MCU (STM32F405RG):
+- I2C1 (SCL,SDA) -> IMU (ICM-20948) and FRAM (MB85RC256)
+- SPI1 (SCK,MOSI,MISO,CS) -> LoRa SX1276 (SPI)
+- UART1 -> GPS module (NEO-M8N)
+- SPI2 / MCP2515 -> CAN transceiver (TJA1050) (listen-only)
+- GPIO -> Buttons (SOS, TEST), LED, Buzzer (with MOSFET driver)
+- SPI or SDIO -> microSD slot (optional)
+- SWD -> Debug (SWCLK, SWDIO)
+
+Antennas:
+- GPS antenna (active) via SMA connector from GPS module
+- LoRa antenna via SMA connector from LoRa module
+
+Notes:
+- Place ferrite beads and TVS diodes on power input.
+- Keep GPS antenna away from metal/obstructions; route antenna cable to roof or dash.
+
+(For PCB design, map these nets to footprints and keep analog sensor traces short; use ground pours and thermal reliefs.)
