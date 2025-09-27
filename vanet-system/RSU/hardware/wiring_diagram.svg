@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <style>text{font-family:Arial; font-size:14px}</style>
+  <rect x="20" y="20" width="360" height="220" fill="#eef" stroke="#333"/>
+  <text x="40" y="45">ESP32 Dev Board</text>
+  <text x="40" y="70">GPIO18 SCK</text>
+  <text x="40" y="90">GPIO19 MISO</text>
+  <text x="40" y="110">GPIO23 MOSI</text>
+  <text x="40" y="130">GPIO5  LORA_NSS</text>
+  <text x="40" y="150">GPIO26 LORA_DIO0</text>
+  <text x="40" y="170">GPIO14 LORA_RST</text>
+  <rect x="420" y="20" width="360" height="220" fill="#efe" stroke="#333"/>
+  <text x="440" y="45">SX1278 LoRa Module</text>
+  <text x="440" y="70">SCK -> GPIO18</text>
+  <text x="440" y="90">MISO -> GPIO19</text>
+  <text x="440" y="110">MOSI -> GPIO23</text>
+  <text x="440" y="130">NSS -> GPIO5</text>
+  <text x="440" y="150">DIO0 -> GPIO26</text>
+  <rect x="20" y="280" width="360" height="180" fill="#fee" stroke="#333"/>
+  <text x="40" y="305">SIM800L Module</text>
+  <text x="40" y="330">SIM TX -> ESP32 RX2 (GPIO16)</text>
+  <text x="40" y="350">SIM RX <- ESP32 TX2 (GPIO17)</text>
+  <text x="40" y="370">PWRKEY -> GPIO4</text>
+  <text x="40" y="390">Supply: 4.0V regulator capable of 2A</text>
+  <rect x="420" y="280" width="360" height="180" fill="#ffe" stroke="#333"/>
+  <text x="440" y="305">microSD Module (SPI)</text>
+  <text x="440" y="330">CS -> GPIO15</text>
+  <text x="440" y="350">SCK -> GPIO18</text>
+  <text x="440" y="370">MISO -> GPIO19</text>
+  <text x="440" y="390">MOSI -> GPIO23</text>
+  <text x="20" y="500">Notes: Keep LoRa and GSM antennas physically separated (~10cm). Use 1000uF cap near SIM800L Vcc to handle peaks.</text>
+</svg>
