@@ -1,7 +1,5 @@
 # VANET ML Module — RSU (edge) & CMS (server) ready package
 
-Generated: 2025-09-29T12:53:00.350882Z
-
 This package provides a complete Machine Learning module for classifying accident severity in the VANET accident-detection system.
 
 Two deployment targets are supported:
