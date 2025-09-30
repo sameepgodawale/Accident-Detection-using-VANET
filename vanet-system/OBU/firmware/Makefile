@@ -1,9 +1,13 @@
-# Simple host build for testing (not cross compile)
-CC=gcc
-CFLAGS=-Iinclude -Wall -O2
-SRCS=core/event_manager.c drivers/storage.c drivers/lora_sim.c drivers/imu_sim.c drivers/gps_sim.c
-all:
-	mkdir -p bin
-	$(CC) $(CFLAGS) -o bin/obu_sim $(SRCS)
+CC=arm-none-eabi-gcc
+CFLAGS=-mcpu=cortex-m4 -mthumb -Os -Iinclude
+
+SRC=$(wildcard firmware/core/*.c firmware/drivers/*.c firmware/utils/*.c)
+OBJ=$(SRC:.c=.o)
+
+all: obu-firmware.elf
+
+obu-firmware.elf: $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
+
 clean:
-	rm -f bin/obu_sim
+	rm -f $(OBJ) obu-firmware.elf
