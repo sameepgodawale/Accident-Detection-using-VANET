@@ -1,1 +1,1 @@
-# VANET System — Full Project Monorepo (Real Firmware Layout)\n\nGenerated: 2025-09-25T02:59:18.518409Z\n
+# VANET System 
