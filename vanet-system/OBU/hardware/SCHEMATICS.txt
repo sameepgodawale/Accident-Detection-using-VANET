@@ -1,25 +1,43 @@
-# Schematics (Text) - OBU Reference Interconnect
+[BlackPill STM32F411CEU6]  
+Power:  
+  - 3.3V → All sensor VCC (MPU6050, MPU9250, TMP117, MLX90614, SW-420, MCP2515, SX1278, GPS)  
+  - GND  → All sensor GND  
 
-Power:
-- Vehicle 12V -> Automotive Buck Converter -> 5V rail
-- 5V rail -> LDO -> 3.3V rail for MCU, sensors, LoRa
-- Optional Supercap across 5V rail for brownout protection
+I²C Bus (Shared):  
+  - PB6 (SCL) → MPU6050 SCL, MPU9250 SCL, TMP117 SCL, MLX90614 SCL  
+  - PB7 (SDA) → MPU6050 SDA, MPU9250 SDA, TMP117 SDA, MLX90614 SDA  
+  - (Pull-ups 4.7kΩ to 3.3V recommended)
 
-MCU (STM32F405RG):
-- I2C1 (SCL,SDA) -> IMU (ICM-20948) and FRAM (MB85RC256)
-- SPI1 (SCK,MOSI,MISO,CS) -> LoRa SX1276 (SPI)
-- UART1 -> GPS module (NEO-M8N)
-- SPI2 / MCP2515 -> CAN transceiver (TJA1050) (listen-only)
-- GPIO -> Buttons (SOS, TEST), LED, Buzzer (with MOSFET driver)
-- SPI or SDIO -> microSD slot (optional)
-- SWD -> Debug (SWCLK, SWDIO)
+SPI Bus (Shared):  
+  - PA5 (SCK)  → SX1278 SCK, MCP2515 SCK  
+  - PA6 (MISO) → SX1278 MISO, MCP2515 MISO  
+  - PA7 (MOSI) → SX1278 MOSI, MCP2515 MOSI  
+  - PA4 (CS1)  → SX1278 NSS (Chip Select)  
+  - PB12 (CS2) → MCP2515 CS (Chip Select)  
+  - PB0  (RST) → SX1278 RESET  
+  - PB1  (INT) → MCP2515 INT  
 
-Antennas:
-- GPS antenna (active) via SMA connector from GPS module
-- LoRa antenna via SMA connector from LoRa module
+UART (GPS Module NEO-6M):  
+  - PA9 (TX1)  → GPS RX  
+  - PA10 (RX1) → GPS TX  
 
-Notes:
-- Place ferrite beads and TVS diodes on power input.
-- Keep GPS antenna away from metal/obstructions; route antenna cable to roof or dash.
+Digital Sensors:  
+  - PC13 → Flame Sensor Digital OUT  
+  - PB5  → SW-420 Vibration Sensor OUT  
 
-(For PCB design, map these nets to footprints and keep analog sensor traces short; use ground pours and thermal reliefs.)
+Push Buttons:  
+  - PA0 → SOS Button (with pull-down resistor)  
+  - PA1 → Reset/Cancel Button  
+
+CAN Bus (through MCP2515 + TJA1050 transceiver):  
+  - MCP2515 → SPI pins (as above)  
+  - TJA1050 TX/RX → CAN_H / CAN_L bus lines  
+
+LED Indicators (optional):  
+  - PA8 → Status LED (ON when accident detected)  
+  - PB3 → LoRa TX LED  
+  - PB4 → Error LED  
+
+Power Input:  
+  - VIN (5V from vehicle battery regulator) → STM32 5V pin  
+  - BlackPill onboard regulator → 3.3V for all peripherals  
