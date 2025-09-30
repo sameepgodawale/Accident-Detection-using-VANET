@@ -1,22 +1,30 @@
-# Firmware Code Explanation
+# OBU Firmware Code Explanation
 
-This file explains key modules, data flows and important functions.
+## event_manager.c
+Main loop. Reads IMU, GPS, CAN bus.
+If crash detected → builds JSON event and sends via LoRa + logs to storage.
 
-Modules:
-- drivers/imu_sim.c: Host-mode IMU sample generator. In production replace with I2C/SPI read and ISR.
-- drivers/gps_sim.c: Host-mode GPS. Replace with UART + NMEA/UBX parsing.
-- drivers/lora_sim.c: In simulation it sends UDP to RSU emulator. In production replace with SX127x SPI driver.
-- drivers/storage.c: Simulated FRAM using file system. Replace with I2C FRAM driver.
-- core/event_manager.c: Event detection and transmit loop. Central FSM.
+## imu.c
+Handles two IMUs (MPU6050 and MPU9250).
+- Acceleration fused by averaging
+- Gyroscope fused by taking maximum
+- Threshold check for crash detection
+- Provides: acc_delta, gyro_delta, impact_time
 
-Event lifecycle:
-1. IMU produces sample -> event_manager checks thresholds
-2. On event, create event_meta_t and persist using storage_append_event
-3. Comms: lora_send is used to send compact packet. Retries tracked in metadata.
-4. RSU provides ACK -> storage_mark_acked clears stored meta and payload.
+## gps.c
+Reads GPS position (lat/lon) from NEO-6M.
+Adds geolocation to event payload.
 
-Security:
-- Messages should be HMAC-signed using device key stored in secure element (ATECC608A). This is left as extension.
+## lora.c
+Handles LoRa SX1278 SPI communication.
+Transmits event JSON string.
 
-OTA:
-- OTA mechanism is outlined in docs but not implemented in this skeleton. Use signed firmware images and dual-bank update.
+## canbus.c
+Reads data from MCP2515 CAN controller.
+Provides wheel speeds and airbag signal.
+
+## storage.c
+Stub for FRAM/SD logging of events.
+
+## json_builder.c
+Formats event_payload_t into JSON string for transmission.
