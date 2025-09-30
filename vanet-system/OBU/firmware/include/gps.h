@@ -1,5 +1,6 @@
 #pragma once
-#include <stdint.h>
-typedef struct { double lat, lon; int sats; int valid; } gps_fix_t;
+#include "event.h"
+
 void gps_init(void);
-int gps_read(gps_fix_t*);
+void gps_update(void);
+void gps_get_location(event_payload_t *ev);
