@@ -1,7 +1,10 @@
 #pragma once
-#include <stdint.h>
+#include "event.h"
 
-typedef struct { float ax, ay, az; float gx, gy, gz; } imu_sample_t;
+#define IMU_ACC_THRESHOLD_G 6.0
+#define IMU_GYRO_THRESHOLD_DEG 40.0
+
 void imu_init(void);
-int imu_read(imu_sample_t* s);
-void imu_isr(void);
+void imu_update(void);
+int imu_check_crash(void);
+void imu_get_features(event_payload_t *ev);
