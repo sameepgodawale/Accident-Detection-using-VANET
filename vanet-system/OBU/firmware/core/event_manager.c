@@ -28,5 +28,6 @@ void event_manager_loop(void) {
         build_event_json(&ev, json_buf, sizeof(json_buf));
 
         lora_send(json_buf);
+        storage_log(json_buf);
     }
 }
