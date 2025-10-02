@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: vanet
+      POSTGRES_PASSWORD: vanetpass
+      POSTGRES_DB: vanetdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro
+    networks:
+      - vanet-net
+  web:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      PGHOST: postgres
+      PGUSER: vanet
+      PGPASSWORD: vanetpass
+      PGDATABASE: vanetdb
+      PGPORT: 5432
+      JWT_SECRET: change_this_secret
+    networks:
+      - vanet-net
+    expose:
+      - "3000"
+    volumes:
+      - ./public:/usr/src/app/public:ro
+      - ./data:/usr/src/app/data
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    networks:
+      - vanet-net
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - vanet-net
+volumes:
+  pgdata:
+networks:
+  vanet-net:
+    driver: bridge
