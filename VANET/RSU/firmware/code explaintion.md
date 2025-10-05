@@ -78,3 +78,47 @@ Configuration variables (pins, URLs, timeouts) are assumed to be defined in `con
 ### 1. File Structure
 
 Ensure your Arduino project directory (`RSU_Firmware/`) contains the following files:
+
+RSU_Firmware/
+├── RSU_Firmware.ino  (The main code file)
+├── config.h          (Must define all pin, URL, and timing constants)
+└── decision_tree_rules.h (Must define the classifySeverity function)
+
+### 2. Decision Tree Rules
+
+You must implement the `classifySeverity` function in `decision_tree_rules.h`.
+
+**Example Prototype in `decision_tree_rules.h`:**
+
+```cpp
+#ifndef DECISION_TREE_RULES_H
+#define DECISION_TREE_RULES_H
+
+#include <Arduino.h>
+
+String classifySeverity(float acc_delta, float gyro_delta, float vibration, float impact_time, bool airbag, float wheel_drop) {
+    if (airbag || (acc_delta > 50.0f && impact_time < 0.1f)) {
+        return "Critical";
+    }
+    // ... other rules
+    return "Minor";
+}
+
+#endif // DECISION_TREE_RULES_H
+
+3. Provisioning
+Place your secret HMAC key (used for server authentication) on the root of the MicroSD card:
+
+/provision.cfg
+------------------
+YOUR_SECRET_256_BIT_KEY_HERE
+4. Running the Code
+Upload the compiled sketch to your ESP32 board. The system will automatically:
+
+Initialize LoRa and listen for packets.
+
+Initialize the SIM800L (via the power pulse in setupSIMSerial).
+
+Initialize the SD card and load the HMAC key.
+
+Start the uploader_task on a separate core to handle all persistent uploads.
