@@ -8,11 +8,10 @@ const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/vanet_cms';
 
 // --- Middlewares ---
-app.use(express.json()); // To parse JSON bodies (OBU payload)
+app.use(express.json()); 
 
-// --- CORS Configuration (Allow the React dashboard to connect) ---
+// --- CORS Configuration (Crucial for React Dashboard) ---
 app.use((req, res, next) => {
-    // Replace with your frontend development server URL (e.g., VITE default)
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173'); 
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -28,7 +27,6 @@ mongoose.connect(MONGO_URI)
   });
 
 // --- API Routes ---
-// The base endpoint for all incident routes
 app.use('/api/v1/incidents', accidentRoutes); 
 
 // --- Server Start ---
