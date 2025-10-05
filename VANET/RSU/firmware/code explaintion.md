@@ -91,6 +91,7 @@ You must implement the `classifySeverity` function in `decision_tree_rules.h`.
 **Example Prototype in `decision_tree_rules.h`:**
 
 ```cpp
+
 #ifndef DECISION_TREE_RULES_H
 #define DECISION_TREE_RULES_H
 
@@ -105,14 +106,18 @@ String classifySeverity(float acc_delta, float gyro_delta, float vibration, floa
 }
 
 #endif // DECISION_TREE_RULES_H
+```
 
-3. Provisioning
+### 3. Provisioning
 Place your secret HMAC key (used for server authentication) on the root of the MicroSD card:
 
+```
 /provision.cfg
 ------------------
 YOUR_SECRET_256_BIT_KEY_HERE
-4. Running the Code
+```
+
+### 4. Running the Code
 Upload the compiled sketch to your ESP32 board. The system will automatically:
 
 Initialize LoRa and listen for packets.
