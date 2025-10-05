@@ -5,14 +5,14 @@ const Incident = require('../models/Incident');
 // --- Core Logic: Triage & Severity Calculation ---
 const calculateTriage = (payload) => {
     let severity = 'minor';
-    let confidenceScore = 50; // Base confidence
+    let confidenceScore = 50; 
 
     const { acc_delta, gyro_delta, wheel_speed_drop_pct, airbag_deployed } = payload;
     
-    // Rule 1: Airbag Deployment -> CRITICAL
+    // Rule 1: Airbag Deployment -> CRITICAL (Highest Confidence)
     if (airbag_deployed === 1) {
         severity = 'critical';
-        confidenceScore = Math.min(100, confidenceScore + 30);
+        confidenceScore = Math.min(100, confidenceScore + 30); 
     }
     
     // Rule 2: High Deceleration
@@ -29,12 +29,6 @@ const calculateTriage = (payload) => {
         confidenceScore = Math.min(100, confidenceScore + 20);
     }
 
-    // Rule 4: High Roll/Spin
-    if (gyro_delta > 150) { 
-        severity = 'critical';
-        confidenceScore = Math.min(100, confidenceScore + 10);
-    }
-
     // Final adjustment based on confidence
     if (confidenceScore >= 90) severity = 'critical';
     else if (confidenceScore >= 70) severity = 'warning';
@@ -42,25 +36,21 @@ const calculateTriage = (payload) => {
     return { severity, confidenceScore };
 };
 
-// --- ENDPOINT I: POST /report (From OBU Device) ---
+// --- ENDPOINT I: POST /report (From OBU Device - EAM) ---
 router.post('/report', async (req, res) => {
     try {
         const payload = req.body;
         
-        // 1. Run the raw data through the triage logic
         const { severity, confidenceScore } = calculateTriage(payload);
 
-        // 2. Create the new incident document
         const newIncident = new Incident({
             ...payload,
             severity,
             confidenceScore,
-            // Convert C int (1/0) to JS Boolean
             airbag_deployed: payload.airbag_deployed === 1,
             has_gps: payload.has_gps === 1,
         });
 
-        // 3. Save to MongoDB
         await newIncident.save();
 
         res.status(201).json({ 
@@ -80,19 +70,16 @@ router.get('/', async (req, res) => {
         const { status } = req.query;
         let filter = {};
 
-        // Build the MongoDB query filter based on the URL parameter
         if (status) {
             const statusArray = status.split(',');
             filter.status = { $in: statusArray };
         }
 
-        // Fetch incidents, sort by timestamp (newest first)
         const incidents = await Incident.find(filter)
                                         .sort({ timestamp: -1 })
                                         .limit(100)
                                         .exec();
 
-        // Mongoose automatically includes the 'location' virtual field when using .toJSON()
         const dashboardLogs = incidents.map(incident => incident.toJSON());
 
         res.json(dashboardLogs);
