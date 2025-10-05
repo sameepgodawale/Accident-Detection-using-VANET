@@ -1,0 +1,12 @@
+# requirements.txt
+
+# For data analysis/visualization
+pandas>=2.1.4
+matplotlib>=3.8.2
+scikit-learn>=1.3.2
+
+# For working with simulation outputs (if using a Python script for parsing)
+xmltodict>=0.13.0
+
+# General utilities
+requests>=2.31.0
