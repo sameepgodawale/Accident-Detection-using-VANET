@@ -24,12 +24,10 @@ const IncidentSchema = new mongoose.Schema({
     dispatchedUnits: { type: [String], default: [] },
     notes: { type: String, default: '' },
 }, { 
-    // Mongoose options to ensure virtuals are included in JSON/Object conversions
     toJSON: { virtuals: true }, 
     toObject: { virtuals: true } 
 });
 
-// Virtual field to map lat/lon into the 'location' object expected by the React dashboard
 IncidentSchema.virtual('location').get(function() {
     return { lat: this.lat, lng: this.lon };
 });
