@@ -1,14 +1,28 @@
-// src/device_code/vanet_comm.h
-
 #pragma once
 #include <stddef.h>
+#include "event.h"
+
+// Structure for the periodic status broadcast (CAM)
+typedef struct {
+    char device_id[16];
+    float lat;
+    float lon;
+    float speed;
+    int system_status; // 0=OK, 1=WARN (e.g., low oil)
+} beacon_payload_t;
+
 
 /**
- * @brief Sends the JSON incident report to the Central Monitoring Server (CMS).
- * * In a real VANET implementation, this would involve DSRC/C-V2X transmission 
- * to an RSU, which then forwards the data via a standard internet connection 
- * (HTTP POST) to the Node.js API endpoint: /api/v1/incidents/report.
- * * @param json_payload The JSON string containing the accident telemetry.
- * @return 0 on success, non-zero on error.
+ * @brief Sends the JSON incident report (EAM) to the CMS.
  */
-int transmit_payload_to_cms(const char *json_payload);
+int transmit_emergency_alert(const char *json_payload);
+
+/**
+ * @brief Broadcasts the periodic vehicle status beacon (CAM) via LoRa.
+ */
+int broadcast_beacon(beacon_payload_t *beacon);
+
+/**
+ * @brief Placeholder to read current GPS and Speed for the beacon.
+ */
+void read_gps_and_speed(beacon_payload_t *beacon);
