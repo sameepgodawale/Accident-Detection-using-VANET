@@ -1,50 +1,73 @@
 const express = require('express');
 const router = express.Router();
 const Incident = require('../models/Incident');
+const { spawn } = require('child_process'); 
 
-// --- Core Logic: Triage & Severity Calculation ---
-const calculateTriage = (payload) => {
-    let severity = 'minor';
-    let confidenceScore = 50; 
+// --- Function to call the Python ML Microservice ---
+const runMLPrediction = (payload) => {
+    return new Promise((resolve, reject) => {
+        // Run the Python script using the spawn command
+        const pythonProcess = spawn('python3', [
+            './src/server_code/ml_microservice/predict_severity.py'
+        ]);
 
-    const { acc_delta, gyro_delta, wheel_speed_drop_pct, airbag_deployed } = payload;
-    
-    // Rule 1: Airbag Deployment -> CRITICAL (Highest Confidence)
-    if (airbag_deployed === 1) {
-        severity = 'critical';
-        confidenceScore = Math.min(100, confidenceScore + 30); 
-    }
-    
-    // Rule 2: High Deceleration
-    if (acc_delta >= 10.0) { 
-        severity = severity === 'critical' ? 'critical' : 'warning';
-        confidenceScore = Math.min(100, confidenceScore + 20);
-    } else if (acc_delta >= 5.0) {
-        confidenceScore = Math.min(100, confidenceScore + 10);
-    }
+        let result = '';
+        let error = '';
 
-    // Rule 3: Major Speed Drop
-    if (wheel_speed_drop_pct >= 80) { 
-        severity = severity === 'critical' ? 'critical' : 'warning';
-        confidenceScore = Math.min(100, confidenceScore + 20);
-    }
+        pythonProcess.stdout.on('data', (data) => {
+            result += data.toString();
+        });
 
-    // Final adjustment based on confidence
-    if (confidenceScore >= 90) severity = 'critical';
-    else if (confidenceScore >= 70) severity = 'warning';
-    
-    return { severity, confidenceScore };
+        pythonProcess.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        pythonProcess.on('close', (code) => {
+            if (code !== 0) {
+                console.error(`ML script failed with code ${code}: ${error}`);
+                // Fallback: If ML fails, use a safe, high-level default
+                return resolve({ severity: 'warning', confidenceScore: 60 });
+            }
+            try {
+                const mlOutput = JSON.parse(result);
+                if (mlOutput.error) {
+                    console.error("ML Error:", mlOutput.error);
+                    return resolve({ severity: 'warning', confidenceScore: 60 }); 
+                }
+                resolve(mlOutput);
+            } catch (e) {
+                console.error('Failed to parse ML output:', result);
+                resolve({ severity: 'warning', confidenceScore: 60 }); 
+            }
+        });
+
+        // Pass the OBU payload to the Python script via stdin
+        const mlPayload = {
+            acc_delta: payload.acc_delta,
+            gyro_delta: payload.gyro_delta,
+            impact_time: payload.impact_time,
+            airbag_deployed: payload.airbag_deployed,
+            wheel_speed_drop_pct: payload.wheel_speed_drop_pct
+        };
+        pythonProcess.stdin.write(JSON.stringify(mlPayload));
+        pythonProcess.stdin.end();
+    });
 };
 
-// --- ENDPOINT I: POST /report (From OBU Device - EAM) ---
+
+// --- ENDPOINT I: POST /report (From OBU/RSU Gateway - EAM) ---
 router.post('/report', async (req, res) => {
     try {
         const payload = req.body;
         
-        const { severity, confidenceScore } = calculateTriage(payload);
+        // 1. Run the raw data through the ML Triage
+        const { severity, confidenceScore } = await runMLPrediction(payload);
+
+        const uniqueId = `INC-${Date.now()}-${payload.device_id.slice(-4)}`;
 
         const newIncident = new Incident({
             ...payload,
+            incident_id: uniqueId,
             severity,
             confidenceScore,
             airbag_deployed: payload.airbag_deployed === 1,
@@ -55,7 +78,7 @@ router.post('/report', async (req, res) => {
 
         res.status(201).json({ 
             message: 'Incident reported and processed', 
-            incidentId: newIncident._id, 
+            incidentId: newIncident.incident_id, 
             severity: newIncident.severity 
         });
     } catch (error) {
@@ -64,8 +87,9 @@ router.post('/report', async (req, res) => {
     }
 });
 
-// --- ENDPOINT II: GET / (To React Dashboard) ---
+// --- ENDPOINT II: GET / (To React Dashboard - Unchanged) ---
 router.get('/', async (req, res) => {
+    // ... (logic remains the same) ...
     try {
         const { status } = req.query;
         let filter = {};
@@ -80,10 +104,7 @@ router.get('/', async (req, res) => {
                                         .limit(100)
                                         .exec();
 
-        const dashboardLogs = incidents.map(incident => incident.toJSON());
-
-        res.json(dashboardLogs);
-
+        res.json(incidents); 
     } catch (error) {
         console.error('Error fetching incidents:', error);
         res.status(500).json({ message: 'Internal Server Error' });
