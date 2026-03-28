@@ -10,8 +10,8 @@ static Preferences prefs;
 //  To change credentials after deployment: update here and reflash,
 //  OR implement a serial command handler to call prefs.putString() directly.
 // ════════════════════════════════════════════════════════════════════════════
-static String _wifi_ssid = "SAM";
-static String _wifi_pass = "9892527937";
+static String _wifi_ssid = "SSID";
+static String _wifi_pass = "PASSWORD";
 static String _apn       = "internet";   // Jio: "jionet"  Airtel: "airtelgprs.com"  Vi: "www"  BSNL: "bsnlnet"
 static String _rsuId     = "RSU-001";    // unique ID for this unit — change per deployment
 // ════════════════════════════════════════════════════════════════════════════
