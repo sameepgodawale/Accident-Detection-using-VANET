@@ -4,6 +4,8 @@ A complete end-to-end **Vehicular Ad-hoc Network (VANET)** accident detection an
 
 A vehicle involved in an accident is detected by an embedded on-board unit, which transmits sensor data wirelessly to a roadside unit. The roadside unit forwards the data to a cloud backend, which classifies severity using a machine learning model, reverse-geocodes the location, alerts the nearest emergency services, and pushes the event live to a web dashboard — all within seconds.
 
+VANET deck :- https://canva.link/tvrwzqetznpve7a
+
 ---
 
 ## Repository Structure
